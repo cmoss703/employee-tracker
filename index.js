@@ -83,3 +83,47 @@ const runPrompt = () => {
         });
 };
 
+ const viewEmployees = () => {
+
+    
+ };
+
+ const viewBydept = () => {
+
+    
+};
+
+const viewByManager = () => {
+
+
+};
+
+const addEmployee = () => {
+
+    
+};
+
+const removeEmployee = () => {
+
+   
+};
+
+const updateRole = () => {
+
+
+};
+
+const updateManager = () => {
+
+    
+};
+
+const viewRoles = () => {
+
+   
+};
+
+const viewDepartments = () => {
+
+
+};
