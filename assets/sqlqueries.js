@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-const consoletable = require('console.table');
+const cTable = require('console.table');
 
 // const connection = mysql.createConnection({
 //     host: 'localhost',
@@ -14,3 +14,4 @@ const consoletable = require('console.table');
 //     if (err) throw err;
 
 // })
+

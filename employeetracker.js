@@ -1,16 +1,19 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
+const consoleTable = require('console.table');
+const sqlqueries = require('./assets/sqlqueries');
 
 const connection = mysql.createConnection({
     host: 'localhost',
-    port: 3303,
+    port: 3306,
     user: 'root',
     password: 'pw',
-    database: 'employee_tracker'
+    database: 'employeetrackerdb',
 });
 
 connection.connect((err) => {
     if (err) throw err;
+    console.log('Welcome to the Employee Tracker');
     runPrompt();
 });
 
@@ -33,7 +36,7 @@ const runPrompt = () => {
             ],
         })
         .then((answer) => {
-            switch (answer.action) {
+            switch (answer.start) {
                 case 'View All Employees':
                     viewEmployees();
                     break;
@@ -77,14 +80,36 @@ const runPrompt = () => {
         });
 };
 
- const viewEmployees = () => {
+const viewEmployees = () => {
 
-    
- };
+    console.log('Viewing Employees');
 
- const viewBydept = () => {
+    let query = `SELECT employee.id, 
+        employee.first_name, 
+        employee.last_name, 
+        roles.title, 
+        department.name AS department, 
+        roles.salary,
+        concat(manager.first_name, ' ', manager.last_name) 
+        AS manager FROM employee 
+        LEFT JOIN employee ON employee.manager_id = manager.id 
+        INNER JOIN roles ON employee.roles_id = roles.id
+        INNER JOIN department ON roles.department_id = department.id
+        ORDER BY employee.id ASC
+        `;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log('------------------------------------------------------------');
+        console.table(res);
+        console.log('------------------------------------------------------------');
+        runPrompt();
+    });
 
-    
+};
+
+const viewBydept = () => {
+
+
 };
 
 const viewByManager = () => {
@@ -94,12 +119,12 @@ const viewByManager = () => {
 
 const addEmployee = () => {
 
-    
+
 };
 
 const removeEmployee = () => {
 
-   
+
 };
 
 const updateRole = () => {
@@ -109,15 +134,16 @@ const updateRole = () => {
 
 const updateManager = () => {
 
-    
+
 };
 
 const viewRoles = () => {
 
-   
+
 };
 
 const viewDepartments = () => {
 
 
 };
+
