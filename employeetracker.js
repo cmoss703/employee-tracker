@@ -118,6 +118,7 @@ const viewByManager = () => {
 const addEmployee = (roles) => {
 
     var roleChoices = [];
+    var managers = [];
 
     connection.query(`SELECT id, title FROM roles`, (err, res) => {
         if (err) throw err;
@@ -127,7 +128,14 @@ const addEmployee = (roles) => {
         })
     });
 
-    // console.log(roleChoices);
+    connection.query(`SELECT id, first_name, last_name FROM employee WHERE manager_id IS NULL`, 
+    (err, res) => {
+        if (err) throw err;
+        res.forEach(employee => {
+            managers.push(employee.last_name);
+            return managers;
+        })
+    });
 
     inquirer
         .prompt([
@@ -146,17 +154,28 @@ const addEmployee = (roles) => {
                 type: "list",
                 message: "Please choose a role for this employee:",
                 choices: roleChoices,
-                // choices() {
-                //     roles.forEach(role => {
-                //         choices.push(role.name);
-                //     });
-                //     return choices;
-                // },
             }
         ]).then((answer) => {
-            const fullName = [answer.first_name, answer.last_name];
+            var employeeArray = [answer.first_name, answer.last_name, answer.roles];
 
-        })
+            if (answer.roles !== "Manager") {
+                inquirer.prompt({
+                    name: "AddManager",
+                    type: "list",
+                    message: "Which manager would you like to assign to this employee?",
+                    choices: managers,
+                }).then((response) => {
+                    employeeArray.push(response.AddManager);
+                }) 
+            };
+
+            console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + employeeArray[2] + '!');
+
+            runPrompt();
+
+        });
+
+
 
 };
 
