@@ -28,6 +28,8 @@ const runPrompt = () => {
                 'View All Employees by Department',
                 'View All Employees by Manager',
                 'Add Employee',
+                'Add Department',
+                'Add Role',
                 'Remove Employee',
                 'Update Employee Role',
                 'Update Employee Manager',
@@ -51,6 +53,14 @@ const runPrompt = () => {
 
                 case 'Add Employee':
                     addEmployee();
+                    break;
+
+                case 'Add Department':
+                    addDept();
+                    break;
+
+                case 'Add Role':
+                    addRole();
                     break;
 
                 case 'Remove Employee':
@@ -115,7 +125,7 @@ const viewByManager = () => {
 
 };
 
-const addEmployee = (roles) => {
+const addEmployee = () => {
 
     var roleChoices = [];
     var managers = [];
@@ -128,7 +138,7 @@ const addEmployee = (roles) => {
         })
     });
 
-    connection.query(`SELECT id, first_name, last_name FROM employee WHERE manager_id IS NULL`, 
+    connection.query(`SELECT id, last_name FROM employee WHERE manager_id IS NULL`, 
     (err, res) => {
         if (err) throw err;
         res.forEach(employee => {
@@ -159,16 +169,28 @@ const addEmployee = (roles) => {
             var employeeArray = [answer.first_name, answer.last_name, answer.roles];
 
             if (answer.roles !== "Manager") {
+                const addManager = () => {
                 inquirer.prompt({
-                    name: "AddManager",
+                    name: "newManager",
                     type: "list",
                     message: "Which manager would you like to assign to this employee?",
                     choices: managers,
                 }).then((response) => {
-                    employeeArray.push(response.AddManager);
+                    employeeArray.push(response.newManager);
                 }) 
             };
+            addManager();
+            } 
+            else {employeeArray.push(null)};
 
+            // Add something here to wait for manager response
+            // Need to get role id in object instead of role name
+
+            connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
+                if (err) throw err;
+            })
+            
+            console.log(employeeArray);
             console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + employeeArray[2] + '!');
 
             runPrompt();
@@ -176,6 +198,14 @@ const addEmployee = (roles) => {
         });
 
 
+
+};
+
+const addDept = () => {
+
+};
+
+const addRole = () => {
 
 };
 
