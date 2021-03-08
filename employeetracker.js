@@ -115,8 +115,48 @@ const viewByManager = () => {
 
 };
 
-const addEmployee = () => {
+const addEmployee = (roles) => {
 
+    var roleChoices = [];
+
+    connection.query(`SELECT id, title FROM roles`, (err, res) => {
+        if (err) throw err;
+        res.forEach(roles => {
+            roleChoices.push(roles.title);
+            return roleChoices;
+        })
+    });
+
+    // console.log(roleChoices);
+
+    inquirer
+        .prompt([
+            {
+                name: "first_name",
+                type: "input",
+                message: "Please enter the employee's first name:",
+            },
+            {
+                name: "last_name",
+                type: "input",
+                message: "Please enter the employee's last name:",
+            },
+            {
+                name: "roles",
+                type: "list",
+                message: "Please choose a role for this employee:",
+                choices: roleChoices,
+                // choices() {
+                //     roles.forEach(role => {
+                //         choices.push(role.name);
+                //     });
+                //     return choices;
+                // },
+            }
+        ]).then((answer) => {
+            const fullName = [answer.first_name, answer.last_name];
+
+        })
 
 };
 
