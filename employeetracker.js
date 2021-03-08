@@ -89,19 +89,17 @@ const viewEmployees = () => {
         employee.last_name, 
         roles.title, 
         department.name AS department, 
-        roles.salary,
-        concat(manager.first_name, ' ', manager.last_name) 
-        AS manager FROM employee 
-        LEFT JOIN employee ON employee.manager_id = manager.id 
-        INNER JOIN roles ON employee.roles_id = roles.id
-        INNER JOIN department ON roles.department_id = department.id
+        roles.salary
+        FROM employee, roles, department 
+        WHERE department.id = roles.department_id
+        AND roles.id = employee.roles_id
         ORDER BY employee.id ASC
         `;
     connection.query(query, (err, res) => {
         if (err) throw err;
-        console.log('------------------------------------------------------------');
+        console.log('----------------------------------------------------------------------');
         console.table(res);
-        console.log('------------------------------------------------------------');
+        console.log('----------------------------------------------------------------------');
         runPrompt();
     });
 
@@ -147,3 +145,5 @@ const viewDepartments = () => {
 
 };
 
+// concat(manager.first_name, ' ', manager.last_name) 
+// AS manager 
