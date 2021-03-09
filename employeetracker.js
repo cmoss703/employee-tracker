@@ -166,34 +166,62 @@ const addEmployee = () => {
                 choices: roleChoices,
             }
         ]).then((answer) => {
-            var employeeArray = [answer.first_name, answer.last_name, answer.roles];
+
+            let roleID;
+
+
+            for (i=0; i < roleChoices.length; i++) {
+                if (answer.roles == roleChoices[i]) {
+                    roleID = (i+1);
+                }
+            };
+
+
+
+            var employeeArray = [answer.first_name, answer.last_name, roleID];
 
             if (answer.roles !== "Manager") {
-                // const addManager = () => {
-                    inquirer.prompt({
-                        name: "newManager",
-                        type: "list",
-                        message: "Which manager would you like to assign to this employee?",
-                        choices: managers,
-                    }).then((response) => {
-                        employeeArray.push(response.newManager);
-                    })
+                // const insertEmpl = () => {
+                inquirer.prompt({
+                    name: "newManager",
+                    type: "list",
+                    message: "Which manager would you like to assign to this employee?",
+                    choices: managers,
+                }).then((response) => {
+
+                    let managerID;
+
+                    for (i=0; i < managers.length; i++) {
+                        if (response.newManager == managers[i]) {
+                            managerID = (i+1);
+                        }
+                    };
+
+                    employeeArray.push(managerID);
+                    insertEmpl();
+
+                });
                 // };
-                // addManager();
+
             }
-            else { employeeArray.push(null) };
+            else { 
+                employeeArray.push(null) 
+                insertEmpl();
+            };
 
-            // Add something here to wait for manager response
-            // Need to get role id in object instead of role name
+            const insertEmpl = () => {
+                connection.query(`INSERT INTO employee (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
+                    if (err) throw err;
 
-            connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
-                if (err) throw err;
-            })
+                    console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + answer.roles + '!');
 
-            console.log(employeeArray);
-            console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + employeeArray[2] + '!');
+                })
 
-            runPrompt();
+                // console.log(employeeArray);
+
+                runPrompt();
+
+            }
 
         });
 
@@ -237,7 +265,7 @@ const addRole = () => {
                 message: "Please enter the salary of the new role:"
             }
         ]).then((answer) => {
-            
+
         })
 };
 
