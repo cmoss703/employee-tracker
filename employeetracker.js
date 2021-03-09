@@ -42,14 +42,6 @@ const mainMenu = () => {
                     viewEmployees();
                     break;
 
-                // case 'View All Employees by Department':
-                //     viewBydept();
-                //     break;
-
-                // case 'View All Employees by Manager':
-                //     viewByManager();
-                //     break;
-
                 case 'Add Employee':
                     addEmployee();
                     break;
@@ -434,6 +426,3 @@ const viewDepartments = () => {
     });
 
 };
-
-// concat(employee.first_name, ' ', employee.last_name) 
-// AS manager 
