@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-const sqlqueries = require('./assets/sqlqueries');
+const util = require('util');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -17,6 +17,8 @@ connection.connect((err) => {
     mainMenu();
 });
 
+connection.query = util.promisify(connection.query);
+
 const mainMenu = () => {
     inquirer
         .prompt({
@@ -30,7 +32,6 @@ const mainMenu = () => {
                 'Add Role',
                 'Remove Employee',
                 'Update Employee Role',
-                'Update Employee Manager',
                 'View All Roles',
                 'View All Departments',
             ],
@@ -67,10 +68,6 @@ const mainMenu = () => {
 
                 case 'Update Employee Role':
                     updateRole();
-                    break;
-
-                case 'Update Employee Manager':
-                    updateManager();
                     break;
 
                 case 'View All Roles':
@@ -113,16 +110,6 @@ const viewEmployees = () => {
     });
 
 };
-
-// const viewBydept = () => {
-
-
-// };
-
-// const viewByManager = () => {
-
-
-// };
 
 const addEmployee = () => {
 
@@ -216,8 +203,6 @@ const addEmployee = () => {
 
                 });
 
-                // console.log(employeeArray);
-
             }
 
         });
@@ -308,12 +293,62 @@ const removeEmployee = () => {
 
 };
 
-const updateRole = () => {
+const updateRole = async () => {
 
+    var employees = await connection.query(`SELECT id, first_name, last_name FROM employee`);
+    var newRoles = await connection.query(`SELECT id, title FROM roles`);
 
-};
+    var employeeChoices = employees.map(employee =>
+        `${employee.first_name} ${employee.last_name}`
+    );
 
-const updateManager = () => {
+    var newroleChoices = newRoles.map(role => role.title);
+
+    inquirer
+        .prompt([
+            {
+                name: "whichEmployee",
+                type: "list",
+                message: "Which employee would you like to update?",
+                choices: employeeChoices,
+            },
+            {
+                name: "newRole",
+                type: "list",
+                message: "Which role would you like to assign to this employee?",
+                choices: newroleChoices,
+            }
+        ]).then((answer) => {
+
+            let empID;
+            let roleID;
+            
+
+            for (i = 0; i < newroleChoices.length; i++) {
+                if (answer.newRole == newroleChoices[i]) {
+                    roleID = (i + 1);
+                }
+            };
+
+            for (i = 0; i < employeeChoices.length; i++) {
+                if (answer.whichEmployee == employeeChoices[i]) {
+                    empID = (i + 1);
+                }
+            };
+
+            const updateroleArray = [roleID, empID];
+
+            connection.query(`UPDATE employee SET roles_id = ? WHERE id = ?`, updateroleArray, (err) => {
+                if (err) throw err;
+
+                console.log('----------------------------------------------------------------------');
+                console.log(answer.whichEmployee + " was updated to " + answer.newRole + " role!");
+                console.log('----------------------------------------------------------------------');
+
+                mainMenu();
+            });
+
+        });
 
 
 };
@@ -339,11 +374,24 @@ const viewRoles = () => {
         mainMenu();
     });
 
-
 };
 
 const viewDepartments = () => {
 
+    console.log('Viewing All Departments');
+
+    let query = `SELECT department.id, 
+        department.name
+        FROM department
+        ORDER BY department.id ASC
+        `;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log('----------------------------------------------------------------------');
+        console.table(res);
+        console.log('----------------------------------------------------------------------');
+        mainMenu();
+    });
 
 };
 
