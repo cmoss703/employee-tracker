@@ -14,10 +14,10 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
     if (err) throw err;
     console.log('Welcome to the Employee Tracker');
-    runPrompt();
+    mainMenu();
 });
 
-const runPrompt = () => {
+const mainMenu = () => {
     inquirer
         .prompt({
             name: 'start',
@@ -25,8 +25,6 @@ const runPrompt = () => {
             message: 'What would you like to do?',
             choices: [
                 'View All Employees',
-                'View All Employees by Department',
-                'View All Employees by Manager',
                 'Add Employee',
                 'Add Department',
                 'Add Role',
@@ -43,13 +41,13 @@ const runPrompt = () => {
                     viewEmployees();
                     break;
 
-                case 'View All Employees by Department':
-                    viewBydept();
-                    break;
+                // case 'View All Employees by Department':
+                //     viewBydept();
+                //     break;
 
-                case 'View All Employees by Manager':
-                    viewByManager();
-                    break;
+                // case 'View All Employees by Manager':
+                //     viewByManager();
+                //     break;
 
                 case 'Add Employee':
                     addEmployee();
@@ -99,7 +97,8 @@ const viewEmployees = () => {
         employee.last_name, 
         roles.title, 
         department.name AS department, 
-        roles.salary
+        roles.salary,
+        manager_id
         FROM employee, roles, department 
         WHERE department.id = roles.department_id
         AND roles.id = employee.roles_id
@@ -110,20 +109,20 @@ const viewEmployees = () => {
         console.log('----------------------------------------------------------------------');
         console.table(res);
         console.log('----------------------------------------------------------------------');
-        runPrompt();
+        mainMenu();
     });
 
 };
 
-const viewBydept = () => {
+// const viewBydept = () => {
 
 
-};
+// };
 
-const viewByManager = () => {
+// const viewByManager = () => {
 
 
-};
+// };
 
 const addEmployee = () => {
 
@@ -169,19 +168,16 @@ const addEmployee = () => {
 
             let roleID;
 
-
-            for (i=0; i < roleChoices.length; i++) {
+            for (i = 0; i < roleChoices.length; i++) {
                 if (answer.roles == roleChoices[i]) {
-                    roleID = (i+1);
+                    roleID = (i + 1);
                 }
             };
-
-
 
             var employeeArray = [answer.first_name, answer.last_name, roleID];
 
             if (answer.roles !== "Manager") {
-                // const insertEmpl = () => {
+
                 inquirer.prompt({
                     name: "newManager",
                     type: "list",
@@ -191,9 +187,9 @@ const addEmployee = () => {
 
                     let managerID;
 
-                    for (i=0; i < managers.length; i++) {
+                    for (i = 0; i < managers.length; i++) {
                         if (response.newManager == managers[i]) {
-                            managerID = (i+1);
+                            managerID = (i + 1);
                         }
                     };
 
@@ -201,11 +197,10 @@ const addEmployee = () => {
                     insertEmpl();
 
                 });
-                // };
 
             }
-            else { 
-                employeeArray.push(null) 
+            else {
+                employeeArray.push(null)
                 insertEmpl();
             };
 
@@ -214,18 +209,18 @@ const addEmployee = () => {
                     if (err) throw err;
 
                     console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + answer.roles + '!');
+                    console.log('----------------------------------------------------------------------');
 
-                })
+
+                    mainMenu();
+
+                });
 
                 // console.log(employeeArray);
-
-                runPrompt();
 
             }
 
         });
-
-
 
 };
 
@@ -237,36 +232,77 @@ const addDept = () => {
                 name: "newDept",
                 type: "input",
                 message: "Please enter the name of the new department:",
-            },
-            {
-                name: "salary",
-                type: "input"
             }
         ])
-            .then((answer) => {
-                connection.query(`INSERT INTO roles (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
-                    if (err) throw err;
-                })
-            })
+        .then((answer) => {
+            connection.query(`INSERT INTO department (name) VALUE (?)`, answer.newDept, (err) => {
+                if (err) throw err;
 
+                console.log("Department " + answer.newDept + " was added!")
+                console.log('----------------------------------------------------------------------');
+            })
+        });
+
+    mainMenu();
 };
 
 const addRole = () => {
+
+    const deptChoices = [];
+
+    connection.query(`SELECT id, name FROM department`, (err, res) => {
+        if (err) throw err;
+        res.forEach(department => {
+            deptChoices.push(department.name);
+            return deptChoices;
+        })
+    });
+
     inquirer
         .prompt([
             {
                 name: "newRole",
                 type: "input",
                 message: "Please enter the title of the new role:",
-            },            
+            },
             {
                 name: "salary",
                 type: "input",
                 message: "Please enter the salary of the new role:"
+            },
+            {
+                name: 'whichDept',
+                type: "list",
+                message: "Which Department does this role belong to?",
+                choices: deptChoices
             }
         ]).then((answer) => {
 
-        })
+            let deptID;
+
+            for (i = 0; i < deptChoices.length; i++) {
+                if (answer.whichDept == deptChoices[i]) {
+                    deptID = (i + 1);
+                    console.log("Department ID = " + deptID)
+                };
+            };
+
+            const roleArray = [answer.newRole, answer.salary, deptID];
+
+            const insertRole = () => {
+                connection.query(`INSERT INTO roles (title, salary, department_id) VALUE (?, ?, ?)`, roleArray, (err) => {
+                    if (err) throw err;
+                    console.log("Role " + answer.newRole + " was added in Department " + answer.whichDept + "!");
+                    console.log('----------------------------------------------------------------------');
+                });
+
+                mainMenu();
+            };
+
+            insertRole();
+
+        });
+
 };
 
 const removeEmployee = () => {
@@ -294,5 +330,5 @@ const viewDepartments = () => {
 
 };
 
-// concat(manager.first_name, ' ', manager.last_name) 
+// concat(employee.first_name, ' ', employee.last_name) 
 // AS manager 
