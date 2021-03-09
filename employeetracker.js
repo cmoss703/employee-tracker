@@ -208,9 +208,9 @@ const addEmployee = () => {
                 connection.query(`INSERT INTO employee (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
                     if (err) throw err;
 
+                    console.log('----------------------------------------------------------------------');
                     console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + answer.roles + '!');
                     console.log('----------------------------------------------------------------------');
-
 
                     mainMenu();
 
@@ -238,12 +238,14 @@ const addDept = () => {
             connection.query(`INSERT INTO department (name) VALUE (?)`, answer.newDept, (err) => {
                 if (err) throw err;
 
+                console.log('----------------------------------------------------------------------');
                 console.log("Department " + answer.newDept + " was added!")
                 console.log('----------------------------------------------------------------------');
+
+                mainMenu();
             })
         });
 
-    mainMenu();
 };
 
 const addRole = () => {
@@ -283,23 +285,19 @@ const addRole = () => {
             for (i = 0; i < deptChoices.length; i++) {
                 if (answer.whichDept == deptChoices[i]) {
                     deptID = (i + 1);
-                    console.log("Department ID = " + deptID)
                 };
             };
 
             const roleArray = [answer.newRole, answer.salary, deptID];
 
-            const insertRole = () => {
-                connection.query(`INSERT INTO roles (title, salary, department_id) VALUE (?, ?, ?)`, roleArray, (err) => {
-                    if (err) throw err;
-                    console.log("Role " + answer.newRole + " was added in Department " + answer.whichDept + "!");
-                    console.log('----------------------------------------------------------------------');
-                });
+            connection.query(`INSERT INTO roles (title, salary, department_id) VALUE (?, ?, ?)`, roleArray, (err) => {
+                if (err) throw err;
+                console.log('----------------------------------------------------------------------');
+                console.log("Role " + answer.newRole + " was added in Department " + answer.whichDept + "!");
+                console.log('----------------------------------------------------------------------');
 
                 mainMenu();
-            };
-
-            insertRole();
+            });
 
         });
 
@@ -321,6 +319,25 @@ const updateManager = () => {
 };
 
 const viewRoles = () => {
+
+    console.log('Viewing All Roles');
+
+    let query = `SELECT roles.id, 
+        roles.title, 
+        roles.salary, 
+        roles.department_id, 
+        department.name AS department
+        FROM roles, department
+        WHERE department.id = roles.department_id
+        ORDER BY roles.id ASC
+        `;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log('----------------------------------------------------------------------');
+        console.table(res);
+        console.log('----------------------------------------------------------------------');
+        mainMenu();
+    });
 
 
 };
