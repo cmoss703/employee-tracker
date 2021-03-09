@@ -288,9 +288,48 @@ const addRole = () => {
 
 };
 
-const removeEmployee = () => {
+const removeEmployee = async () => {
 
-    
+    var employees = await connection.query(`SELECT id, first_name, last_name FROM employee`);
+
+    var employeeChoices = employees.map(employee =>
+        `${employee.first_name} ${employee.last_name}`
+    );
+
+    inquirer
+        .prompt([
+            {
+                name: "whichEmployee",
+                type: "list",
+                message: "Which employee would you like to remove?",
+                choices: employeeChoices,
+            },
+            {
+                name: "ruSure",
+                type: "confirm",
+                message: "Are you sure you want to delete this employee forever?"
+            }
+        ]).then((answer) => {
+
+            let empID;
+
+            for (i = 0; i < employeeChoices.length; i++) {
+                if (answer.whichEmployee == employeeChoices[i]) {
+                    empID = (i + 1);
+                }
+            };
+
+            connection.query(`DELETE FROM employee WHERE id = ?`, empID, (err) => {
+                if (err) throw err;
+
+                console.log('----------------------------------------------------------------------');
+                console.log(answer.whichEmployee + " was removed from this list. Forever. Bye bye! Hope they got their last paycheck...");
+                console.log('----------------------------------------------------------------------');
+
+                mainMenu();
+            });
+
+        })
 
 };
 
@@ -323,7 +362,7 @@ const updateRole = async () => {
 
             let empID;
             let roleID;
-            
+
 
             for (i = 0; i < newroleChoices.length; i++) {
                 if (answer.newRole == newroleChoices[i]) {
