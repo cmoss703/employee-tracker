@@ -138,14 +138,14 @@ const addEmployee = () => {
         })
     });
 
-    connection.query(`SELECT id, last_name FROM employee WHERE manager_id IS NULL`, 
-    (err, res) => {
-        if (err) throw err;
-        res.forEach(employee => {
-            managers.push(employee.last_name);
-            return managers;
-        })
-    });
+    connection.query(`SELECT id, last_name FROM employee WHERE manager_id IS NULL`,
+        (err, res) => {
+            if (err) throw err;
+            res.forEach(employee => {
+                managers.push(employee.last_name);
+                return managers;
+            })
+        });
 
     inquirer
         .prompt([
@@ -169,19 +169,19 @@ const addEmployee = () => {
             var employeeArray = [answer.first_name, answer.last_name, answer.roles];
 
             if (answer.roles !== "Manager") {
-                const addManager = () => {
-                inquirer.prompt({
-                    name: "newManager",
-                    type: "list",
-                    message: "Which manager would you like to assign to this employee?",
-                    choices: managers,
-                }).then((response) => {
-                    employeeArray.push(response.newManager);
-                }) 
-            };
-            addManager();
-            } 
-            else {employeeArray.push(null)};
+                // const addManager = () => {
+                    inquirer.prompt({
+                        name: "newManager",
+                        type: "list",
+                        message: "Which manager would you like to assign to this employee?",
+                        choices: managers,
+                    }).then((response) => {
+                        employeeArray.push(response.newManager);
+                    })
+                // };
+                // addManager();
+            }
+            else { employeeArray.push(null) };
 
             // Add something here to wait for manager response
             // Need to get role id in object instead of role name
@@ -189,7 +189,7 @@ const addEmployee = () => {
             connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
                 if (err) throw err;
             })
-            
+
             console.log(employeeArray);
             console.log(employeeArray[0] + ' ' + employeeArray[1] + ' was added as ' + employeeArray[2] + '!');
 
@@ -203,10 +203,42 @@ const addEmployee = () => {
 
 const addDept = () => {
 
+    inquirer
+        .prompt([
+            {
+                name: "newDept",
+                type: "input",
+                message: "Please enter the name of the new department:",
+            },
+            {
+                name: "salary",
+                type: "input"
+            }
+        ])
+            .then((answer) => {
+                connection.query(`INSERT INTO roles (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, employeeArray, (err) => {
+                    if (err) throw err;
+                })
+            })
+
 };
 
 const addRole = () => {
-
+    inquirer
+        .prompt([
+            {
+                name: "newRole",
+                type: "input",
+                message: "Please enter the title of the new role:",
+            },            
+            {
+                name: "salary",
+                type: "input",
+                message: "Please enter the salary of the new role:"
+            }
+        ]).then((answer) => {
+            
+        })
 };
 
 const removeEmployee = () => {
