@@ -21,10 +21,10 @@ This application is invoked by entering 'npm start' into the terminal.
 
 You will then be given a prompt to View, Add, or Modify departments, employees, or roles.
 
-[Here is a link to the video tutorial](https://drive.google.com/file/d/1h_n8mznACt1Jl67DJD9z5u21HUYXyrMf/view)
+[Here is a link to the video tutorial](https://drive.google.com/file/d/16TN3ABrZu1JMObL8-veFC23Bl6Ok5Pcv/view)
 
 ![Prompts](/images/prompts.png)
-![Deployed App](/images/team-profile.png)
+![Deployed App](/deployed.png)
 
 ## CREDITS
 
