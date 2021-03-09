@@ -25,6 +25,7 @@ You will then be given a prompt to View, Add, or Modify departments, employees, 
 
 ![Prompts](images/prompts.png)
 ![Deployed App](images/deployed.png)
+![Deployed App 2](images/deployed2.png)
 
 ## CREDITS
 
